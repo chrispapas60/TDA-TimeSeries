@@ -1,0 +1,24 @@
+# compile Fortran/c++ files
+*.o
+*.mod
+
+*.exe
+*.out
+
+#Build folders
+Build/
+
+# output files
+output/*.csv
+output/*.png
+output/*.pdf
+output/*.root
+
+#large local data
+data/*.csv
+data/*.root
+
+# editor/system firles
+.vscode
+.DS_Store
+Thumbs.db
