@@ -1,114 +1,112 @@
-program compute_log_returns
-    implicit none
+PROGRAM COMPUTE_LOG_RETURNS
+    IMPLICIT NONE
 
-    integer, parameter :: max_n = 20000
+    INTEGER, PARAMETER :: MAX_N = 20000
 
-    character(len=256) :: line
-    character(len=256) :: input_file
-    character(len=256) :: output_file
+    CHARACTER(LEN=256) :: LINE
+    CHARACTER(LEN=256) :: INPUT_FILE
+    CHARACTER(LEN=256) :: OUTPUT_FILE
 
-    real(8) :: close_price(max_n)
-    real(8) :: log_return(max_n)
+    REAL(8) :: CLOSE_PRICE(MAX_N)
+    REAL(8) :: LOG_RETURN(MAX_N)
 
-    integer :: n, i, ios
-    integer :: year, month
-    logical :: file_exists
+    INTEGER :: N, I, IOS
+    INTEGER :: YEAR, MONTH
+    LOGICAL :: FILE_EXISTS
 
-    output_file = "output/returns.csv"
-    n = 0
+    OUTPUT_FILE = "output/returns.csv"
+    N = 0
 
-    do year = 2018, 2026
-        do month = 1, 12
+    DO YEAR = 2018, 2026
+        DO MONTH = 1, 12
 
-            write(input_file, '("data/raw/BTCTUSD-1d-",I4.4,"-",I2.2,".csv")') year, month
+            WRITE(INPUT_FILE, '("data/raw/BTCTUSD-1d-",I4.4,"-",I2.2,".csv")') YEAR, MONTH
 
-            inquire(file=input_file, exist=file_exists)
+            INQUIRE(FILE=INPUT_FILE, EXIST=FILE_EXISTS)
 
-            if (.not. file_exists) cycle
+            IF (.NOT. FILE_EXISTS) CYCLE
 
-            open(unit=10, file=input_file, status="old", action="read", iostat=ios)
+            OPEN(UNIT=10, FILE=INPUT_FILE, STATUS="old", ACTION="read", IOSTAT=IOS)
 
-            if (ios /= 0) then
-                print *, "Could not open file: ", trim(input_file)
-                cycle
-            end if
+            IF (IOS /= 0) THEN
+                PRINT *, "Could not open file: ", TRIM(INPUT_FILE)
+                CYCLE
+            END IF
 
-            do
-                read(10, '(A)', iostat=ios) line
-                if (ios /= 0) exit
+            DO
+                READ(10, '(A)', IOSTAT=IOS) LINE
+                IF (IOS /= 0) EXIT
 
-                n = n + 1
+                N = N + 1
 
-                if (n > max_n) then
-                    print *, "Too many rows. Increase max_n."
-                    stop
-                end if
+                IF (N > MAX_N) THEN
+                    PRINT *, "Too many rows. Increase MAX_N."
+                    STOP
+                END IF
 
-                call read_close_from_line(line, close_price(n))
-            end do
+                CALL READ_CLOSE_FROM_LINE(LINE, CLOSE_PRICE(N))
+            END DO
 
-            close(10)
+            CLOSE(10)
 
-        end do
-    end do
+        END DO
+    END DO
 
-    if (n < 2) then
-        print *, "Not enough close prices found."
-        stop
-    end if
+    IF (N < 2) THEN
+        PRINT *, "Not enough close prices found."
+        STOP
+    END IF
 
-    do i = 2, n
-        log_return(i) = log(close_price(i) / close_price(i - 1))
-    end do
+    DO I = 2, N
+        LOG_RETURN(I) = LOG(CLOSE_PRICE(I) / CLOSE_PRICE(I - 1))
+    END DO
 
-    open(unit=20, file=output_file, status="replace", action="write", iostat=ios)
+    OPEN(UNIT=20, FILE=OUTPUT_FILE, STATUS="replace", ACTION="write", IOSTAT=IOS)
 
-    if (ios /= 0) then
-        print *, "Could not open output file."
-        stop
-    end if
+    IF (IOS /= 0) THEN
+        PRINT *, "Could not open output file."
+        STOP
+    END IF
 
-    write(20, '(A)') "Index,Close,LogReturn"
+    WRITE(20, '(A)') "INDEX,CLOSE,LOGRETURN"
 
-    do i = 2, n
-        write(20, '(I8,",",F18.8,",",F18.10)') i, close_price(i), log_return(i)
-    end do
+    DO I = 2, N
+        WRITE(20, '(I8,",",F18.8,",",F18.10)') I, CLOSE_PRICE(I), LOG_RETURN(I)
+    END DO
 
-    close(20)
+    CLOSE(20)
 
-    print *, "Read close prices: ", n
-    print *, "Wrote returns to: ", trim(output_file)
+    PRINT *, "Read close prices: ", N
+    PRINT *, "Wrote returns to: ", TRIM(OUTPUT_FILE)
 
-contains
+CONTAINS
 
-    subroutine read_close_from_line(line, close_value)
-        implicit none
+    SUBROUTINE READ_CLOSE_FROM_LINE(LINE, CLOSE_VALUE)
+        IMPLICIT NONE
 
-        character(len=*), intent(in) :: line
-        real(8), intent(out) :: close_value
+        CHARACTER(LEN=*), INTENT(IN) :: LINE
+        REAL(8), INTENT(OUT) :: CLOSE_VALUE
 
-        character(len=256) :: fields(12)
-        character(len=256) :: temp
-        integer :: j, comma_pos
+        CHARACTER(LEN=256) :: FIELDS(12)
+        CHARACTER(LEN=256) :: TEMP
+        INTEGER :: J, COMMA_POS
 
-        temp = trim(line)
+        TEMP = TRIM(LINE)
 
-        do j = 1, 12
-            comma_pos = index(temp, ",")
+        DO J = 1, 12
+            COMMA_POS = INDEX(TEMP, ",")
 
-            if (comma_pos > 0) then
-                fields(j) = temp(1:comma_pos-1)
-                temp = temp(comma_pos+1:)
-            else
-                fields(j) = temp
-                temp = ""
-            end if
-        end do
+            IF (COMMA_POS > 0) THEN
+                FIELDS(J) = TEMP(1:COMMA_POS-1)
+                TEMP = TEMP(COMMA_POS+1:)
+            ELSE
+                FIELDS(J) = TEMP
+                TEMP = ""
+            END IF
+        END DO
 
-        ! Binance kline CSV:
-        ! column 5 = close price
-        read(fields(5), *) close_value
+        READ(FIELDS(5), *) CLOSE_VALUE
 
-    end subroutine read_close_from_line
+    END SUBROUTINE READ_CLOSE_FROM_LINE
 
-end program compute_log_returns
+END PROGRAM COMPUTE_LOG_RETURNS
