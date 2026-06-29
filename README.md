@@ -8,8 +8,9 @@ The planed pipeline is:
 2. Compute log returns
 3. Normalize returns
 4. Apply SAX sumbolic encoding
-5. Construct transision graphs
-6. Build weighed transition graphs
-7. Construct filtrations and simplicial complexes
-8. Compute persistent homology
-9. Visualize results with ROOT
+5. Convert SAX to ESAX
+6. Construct transision graphs
+7. Build weighed transition graphs
+8. Construct filtrations and simplicial complexes
+9. Compute persistent homology
+10. Visualize results with ROOT
